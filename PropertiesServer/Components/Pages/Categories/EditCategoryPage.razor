@@ -1,24 +1,24 @@
-@page "/add-category"
+@page "/edit-category/{Id:int}"
 @using PropertiesServer.Models.DTO
 @using PropertiesServer.Repository.IRepository
 @inject ICategoryRepository CategoryRepository
 @inject NavigationManager NavigationManager
 
-<h2 class="text-center">Add New Category</h2>
+<h2 class="text-center">Update Category</h2>
 <div class="card">
     <div class="card-header">
         <div class="row">
             <div class="col-7">
-                <h2 class="text-dark">New Category</h2>
+                <h2 class="text-dark">Update existing category</h2>
             </div>
         </div>
     </div>
     <div class="card-body">
-        <EditForm Model="CategoryDto" OnValidSubmit="@(() => OnHandleCreateCategory())">
+        <EditForm Model="CategoryDto" OnValidSubmit="@(() => OnUpdateCategory())">
             <DataAnnotationsValidator></DataAnnotationsValidator>
             <ValidationSummary></ValidationSummary>
             <div class="container">
-                
+
                 <div class="form-group">
                     <div class="row">
                         <div class="col-2">
@@ -31,7 +31,7 @@
                     </div>
                 </div>
                 <br />
-                
+
                 <div class="form-group">
                     <div class="row">
                         <div class="col-2">
@@ -44,12 +44,12 @@
                     </div>
                 </div>
                 <br />
-                
+
                 <div class="form-group">
                     <div class="row">
                         <div class="col-2">
                             <button type="submit" class="btn btn-success">
-                                <i class="bi bi-send-check-fill"></i>&nbsp;Submit Category
+                                <i class="bi bi-send-check-fill"></i>&nbsp;Submit Edition
                             </button>
                         </div>
                         <div class="col-6">
@@ -60,23 +60,37 @@
                     </div>
                 </div>
                 <br />
-                
+
             </div>
         </EditForm>
     </div>
 </div>
 
 @code {
+    [Parameter] public int? Id { get; set; }
     private CategoryDTO CategoryDto { get; set; } = new();
 
-    private async Task OnHandleCreateCategory()
+    protected async override Task OnInitializedAsync()
     {
-        var nameCategoryExists = await CategoryRepository.ExistsNameCategory(CategoryDto.NameCategory);
-        if (nameCategoryExists != null)
+        if (Id != null)
+            CategoryDto = await CategoryRepository.GetCategory(Id.Value);
+    }
+    private async Task OnUpdateCategory()
+    {
+        try
+        {
+            var nameCategoryExists = await CategoryRepository.ExistsNameCategory(CategoryDto.NameCategory);
+            if (nameCategoryExists != null)
+                return;
+            // OK :)
+            await CategoryRepository.UpdateCategory(CategoryDto.Id, CategoryDto);
+            NavigationManager.NavigateTo("categories");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
             return;
-
-        await CategoryRepository.CreateCategory(CategoryDto);
-        NavigationManager.NavigateTo("categories");
+        }
     }
 }
 

@@ -40,7 +40,7 @@
                                 <NavLink href="@($"edit-category/{category.Id}")" class="btn btn-secondary">
                                     <i class="bi bi-pencil-square"></i>&nbsp;Edit
                                 </NavLink>
-                                <button class="btn btn-danger" @onclick="() => OnHandleDelete(category.Id)">
+                                <button class="btn btn-danger" @onclick="() => OnDeleteCategory(category.Id)">
                                     <i class="bi bi-trash3-fill"></i>&nbsp;Delete
                                 </button>
                             </td>
@@ -68,7 +68,7 @@
         categoryDto = await CategoryRepository.GetAllCategories();
     }
     
-    private async Task OnHandleDelete(int categoryId) {}
+    private async Task OnDeleteCategory(int categoryId) {}
 }
 
 
