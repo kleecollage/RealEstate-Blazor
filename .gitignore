@@ -1,0 +1,54 @@
+# Compilados de Visual Studio
+.vs/
+*.user
+*.suo
+
+# Archivos de Build de .NET
+bin/
+obj/
+
+# Configuraciones locales
+*.csproj.user
+*.dbmdl
+*.jfm
+*.pdb
+*.log
+
+# Archivos de logs y temporales
+*.log
+*.tlog
+*.log*
+
+# Directorios de dependencias
+packages/
+.nuget/
+
+# Archivos de Rider/JetBrains
+.idea/
+*.sln.iml
+
+# Archivos de configuración local
+appsettings.Development.json
+
+# Archivos de entorno para entornos locales
+.env
+.env.*
+
+# Archivos generados por usuario
+*.swp
+*.bak
+*.tmp
+
+# Archivos específicos de Blazor
+wwwroot/css/app.css
+wwwroot/css/app.css.map
+wwwroot/js/app.js
+wwwroot/js/app.js.map
+
+# Node.js (en caso de que uses npm para gestión de paquetes frontend)
+node_modules/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+desktop.ini
