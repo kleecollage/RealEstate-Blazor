@@ -10,4 +10,5 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 {
     // MODELS
     public DbSet<Category> Categories { get; set; }
+    public DbSet<Estate> Estates { get; set; }
 }
