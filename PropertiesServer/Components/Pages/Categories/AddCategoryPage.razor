@@ -3,6 +3,7 @@
 @using PropertiesServer.Repository.IRepository
 @inject ICategoryRepository CategoryRepository
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JsRuntime
 
 <h2 class="text-center">Add New Category</h2>
 <div class="card">
@@ -73,9 +74,14 @@
     {
         var nameCategoryExists = await CategoryRepository.ExistsNameCategory(CategoryDto.NameCategory);
         if (nameCategoryExists != null)
+        {
+            // Duplicated category error
+            await JsRuntime.ToastrError("Category name already exists!");
             return;
-
+        }
+        // OK :)
         await CategoryRepository.CreateCategory(CategoryDto);
+        await JsRuntime.ToastrSuccess("Category Created Successfully!");
         NavigationManager.NavigateTo("categories");
     }
 }
