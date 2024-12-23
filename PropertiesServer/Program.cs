@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using PropertiesServer.Components;
 using PropertiesServer.Components.Account;
 using PropertiesServer.Data;
+using PropertiesServer.Repository;
+using PropertiesServer.Repository.IRepository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,7 +39,9 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
 // AUTOMAPPER SERVICE
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+// ADD SERVICES (REPOSITORIES )
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
 var app = builder.Build();
 
