@@ -18,12 +18,12 @@ public class CategoryRepository: ICategoryRepository
         _mapper = mapper;
     }
     
-    public async Task<IEnumerable<CategoryDTO>> GetAllCategories()
+    public async Task<IEnumerable<CategoryDto>> GetAllCategories()
     {
         try
         {
-            IEnumerable<CategoryDTO> categoriesDto = 
-                _mapper.Map<IEnumerable<Category>, IEnumerable<CategoryDTO>>(_context.Categories);
+            IEnumerable<CategoryDto> categoriesDto = 
+                _mapper.Map<IEnumerable<Category>, IEnumerable<CategoryDto>>(_context.Categories);
             return (categoriesDto);
         }
         catch (Exception e)
@@ -33,12 +33,12 @@ public class CategoryRepository: ICategoryRepository
         }
     }
 
-    public async Task<CategoryDTO> GetCategory(int categoryId)
+    public async Task<CategoryDto> GetCategory(int categoryId)
     {
         try
         {
-            CategoryDTO categoryDto = 
-                _mapper.Map<Category, CategoryDTO>(await _context.Categories.FirstOrDefaultAsync(
+            CategoryDto categoryDto = 
+                _mapper.Map<Category, CategoryDto>(await _context.Categories.FirstOrDefaultAsync(
                     c => c.Id == categoryId)
                 );
             return (categoryDto);
@@ -50,27 +50,27 @@ public class CategoryRepository: ICategoryRepository
         }
     }
 
-    public async Task<CategoryDTO> CreateCategory(CategoryDTO categoryDto)
+    public async Task<CategoryDto> CreateCategory(CategoryDto categoryDto)
     {
-        Category category = _mapper.Map<CategoryDTO, Category>(categoryDto);
+        Category category = _mapper.Map<CategoryDto, Category>(categoryDto);
         category.CreatedAt = DateTime.Now;
         var addCategory = await _context.Categories.AddAsync(category);
         await _context.SaveChangesAsync();
-        return _mapper.Map<Category, CategoryDTO>(addCategory.Entity);
+        return _mapper.Map<Category, CategoryDto>(addCategory.Entity);
     }
 
-    public async Task<CategoryDTO> UpdateCategory(int categoryId, CategoryDTO categoryDto)
+    public async Task<CategoryDto> UpdateCategory(int categoryId, CategoryDto categoryDto)
     {
         try
         {
             if (categoryId == categoryDto.Id)
             {
                 Category category = await _context.Categories.FindAsync(categoryId);
-                Category categoryToUpdate = _mapper.Map<CategoryDTO, Category>(categoryDto, category);
+                Category categoryToUpdate = _mapper.Map<CategoryDto, Category>(categoryDto, category);
                 categoryToUpdate.UpdatedAt = DateTime.Now;
                 var updatedCategory = _context.Categories.Update(categoryToUpdate);
                 await _context.SaveChangesAsync();
-                return _mapper.Map<Category, CategoryDTO>(updatedCategory.Entity);
+                return _mapper.Map<Category, CategoryDto>(updatedCategory.Entity);
             }
             else // Invalid
                 return null;
@@ -82,11 +82,11 @@ public class CategoryRepository: ICategoryRepository
         }
     }
 
-    public async Task<CategoryDTO> ExistsNameCategory(string nameCategory)
+    public async Task<CategoryDto> ExistsNameCategory(string nameCategory)
     {
         try
         {
-            CategoryDTO categoryDto = _mapper.Map<Category, CategoryDTO>(
+            CategoryDto categoryDto = _mapper.Map<Category, CategoryDto>(
                 await _context.Categories.FirstOrDefaultAsync(
                     c => c.NameCategory.ToLower().Trim() == nameCategory.ToLower().Trim())
             );

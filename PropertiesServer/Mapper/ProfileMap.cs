@@ -8,7 +8,7 @@ public class ProfileMap: Profile
 {
     public ProfileMap()
     {
-        CreateMap<CategoryDTO, Category>().ReverseMap();
+        CreateMap<CategoryDto, Category>().ReverseMap();
         /* THE OTHER WAY
         CreateMap<CategoryDTO, Category>();
         CreateMap<Category, CategoryDTO>();

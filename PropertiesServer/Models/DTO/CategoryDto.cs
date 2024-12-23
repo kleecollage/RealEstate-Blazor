@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace PropertiesServer.Models.DTO;
 
-public class CategoryDTO
+public class CategoryDto
 {
     public int Id { get; set; }
 

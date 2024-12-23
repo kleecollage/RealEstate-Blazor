@@ -4,11 +4,11 @@ namespace PropertiesServer.Repository.IRepository;
 
 public interface ICategoryRepository
 {
-    public Task<IEnumerable<CategoryDTO>> GetAllCategories();
-    public Task<CategoryDTO> GetCategory(int categoryId);
-    public Task<CategoryDTO> CreateCategory(CategoryDTO categoryDto);
-    public Task<CategoryDTO> UpdateCategory(int categoryId, CategoryDTO categoryDto);
-    public Task<CategoryDTO> ExistsNameCategory(string nameCategory);
+    public Task<IEnumerable<CategoryDto>> GetAllCategories();
+    public Task<CategoryDto> GetCategory(int categoryId);
+    public Task<CategoryDto> CreateCategory(CategoryDto categoryDto);
+    public Task<CategoryDto> UpdateCategory(int categoryId, CategoryDto categoryDto);
+    public Task<CategoryDto> ExistsNameCategory(string nameCategory);
     public Task<int> DeleteCategory(int categoryId);
     // public Task<IEnumerable<CategoryDTO>> GetDropDownCategories(int categoryId);
 }
