@@ -1,7 +1,7 @@
 @page "/categories"
 @using PropertiesServer.Models.DTO
 @using PropertiesServer.Repository.IRepository
-@inject ICategoryRepository categoryRepository
+@inject ICategoryRepository CategoryRepository
 
 <h3 class="text-center">Categories</h3>
 <div class="card">
@@ -65,7 +65,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        categoryDto = await categoryRepository.GetAllCategories();
+        categoryDto = await CategoryRepository.GetAllCategories();
     }
     
     private async Task OnHandleDelete(int categoryId) {}

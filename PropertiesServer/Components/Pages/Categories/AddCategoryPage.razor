@@ -1,8 +1,83 @@
 @page "/add-category"
-<h3>Add Category Page</h3>
+@using PropertiesServer.Models.DTO
+@using PropertiesServer.Repository.IRepository
+@inject ICategoryRepository categoryRepository
+@inject NavigationManager navigationManager
+
+<h2 class="text-center">Add New Category</h2>
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-7">
+                <h2 class="text-dark">New Category</h2>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <EditForm Model="CategoryDto" OnValidSubmit="@(() => OnHandleCreateCategory())">
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+            <ValidationSummary></ValidationSummary>
+            <div class="container">
+                
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-2">
+                            <label for="">Name:</label>
+                        </div>
+                        <div class="col-6">
+                            <InputText @bind-Value="CategoryDto.NameCategory" class="form-control" placeholder="Enter category name"/>
+                            <ValidationMessage For="() => CategoryDto.NameCategory"></ValidationMessage>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-2">
+                            <label for="">Description:</label>
+                        </div>
+                        <div class="col-6">
+                            <InputText @bind-Value="CategoryDto.Description" class="form-control" placeholder="Enter category description"/>
+                            <ValidationMessage For="() => CategoryDto.Description"></ValidationMessage>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-send-check-fill"></i>&nbsp;Submit Category
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <NavLink href="categories" class="btn btn-secondary">
+                                <i class="bi bi-arrow-90deg-left"></i>&nbsp;Go Back
+                            </NavLink>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                
+            </div>
+        </EditForm>
+    </div>
+</div>
 
 @code {
-    
+    private CategoryDTO CategoryDto { get; set; } = new();
+
+    private async Task OnHandleCreateCategory()
+    {
+        var nameCategoryExists = await categoryRepository.ExistsNameCategory(CategoryDto.NameCategory);
+        if (nameCategoryExists != null)
+            return;
+
+        await categoryRepository.CreateCategory(CategoryDto);
+        navigationManager.NavigateTo("categories");
+    }
 }
 
 

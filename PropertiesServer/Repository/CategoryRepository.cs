@@ -55,6 +55,7 @@ public class CategoryRepository: ICategoryRepository
         Category category = _mapper.Map<CategoryDTO, Category>(categoryDto);
         category.CreatedAt = DateTime.Now;
         var addCategory = await _context.Categories.AddAsync(category);
+        await _context.SaveChangesAsync();
         return _mapper.Map<Category, CategoryDTO>(addCategory.Entity);
     }
 
