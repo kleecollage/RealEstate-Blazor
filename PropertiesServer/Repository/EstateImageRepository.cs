@@ -1,5 +1,7 @@
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using PropertiesServer.Data;
+using PropertiesServer.Models;
 using PropertiesServer.Models.DTO;
 using PropertiesServer.Repository.IRepository;
 
@@ -15,28 +17,42 @@ public class EstateImageRepository: IEstateImageRepository
         _context = context;
         _mapper = mapper;
     }
-    public Task<int> CreateEstateImage(EstateImageDto imageDto)
+    public async Task<int> CreateEstateImage(EstateImageDto imageDto)
     {
-        throw new NotImplementedException();
+        var image = _mapper.Map<EstateImageDto, EstateImage>(imageDto);
+        await _context.EstateImages.AddAsync(image);
+        return await _context.SaveChangesAsync();
     }
 
-    public Task<int> DeleteEstateImageByIdImage(int imageId)
+    public async Task<int> DeleteEstateImageByIdImage(int imageId)
     {
-        throw new NotImplementedException();
+        var image = await _context.EstateImages.FindAsync(imageId);
+        if (image != null) _context.EstateImages.Remove(image);
+        return await _context.SaveChangesAsync();
     }
 
-    public Task<int> DeleteEstateImageByIdEstate(int estateId)
+    public async Task<int> DeleteEstateImageByIdEstate(int estateId)
     {
-        throw new NotImplementedException();
+        var imagesList = await _context.EstateImages.Where(i => i.Id == estateId).ToListAsync();
+        _context.EstateImages.RemoveRange(imagesList);
+        return await _context.SaveChangesAsync();
     }
 
-    public Task<int> DeleteEstateImageByUrl(string url)
+    public async Task<int> DeleteEstateImageByUrl(string imageUrl)
     {
-        throw new NotImplementedException();
+        var image = await _context.EstateImages.FirstOrDefaultAsync(
+            i => i.ImageUrl.ToLower().Trim() == imageUrl.ToLower().Trim()
+        );
+        
+        if (image == null) return 0;
+        
+        _context.EstateImages.Remove(image);
+        return await _context.SaveChangesAsync();
     }
 
-    public Task<IEnumerable<EstateImageDto>> GetEstateImages(int estateId)
+    public async Task<IEnumerable<EstateImageDto>> GetEstateImages(int estateId)
     {
-        throw new NotImplementedException();
+        return _mapper.Map<IEnumerable<EstateImage>, IEnumerable<EstateImageDto>>(
+            await _context.EstateImages.Where(i => i.Id == estateId).ToListAsync());
     }
 }

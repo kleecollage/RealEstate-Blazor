@@ -7,6 +7,6 @@ public interface IEstateImageRepository
     public Task<int> CreateEstateImage(EstateImageDto imageDto);
     public Task<int> DeleteEstateImageByIdImage(int imageId);
     public Task<int> DeleteEstateImageByIdEstate(int estateId);
-    public Task<int> DeleteEstateImageByUrl(string url);
+    public Task<int> DeleteEstateImageByUrl(string imageUrl);
     public Task<IEnumerable<EstateImageDto>> GetEstateImages(int estateId);
 }

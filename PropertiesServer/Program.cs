@@ -6,6 +6,7 @@ using PropertiesServer.Components.Account;
 using PropertiesServer.Data;
 using PropertiesServer.Repository;
 using PropertiesServer.Repository.IRepository;
+using PropertiesServer.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,6 +44,8 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IEstateRepository, EstateRepository>();
+builder.Services.AddScoped<IEstateImageRepository, EstateImageRepository>();
+builder.Services.AddScoped<IUploadFile, UploadFile>();
 
 var app = builder.Build();
 
