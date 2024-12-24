@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace PropertiesServer.Models;
 
@@ -41,6 +42,9 @@ public class Estate
     
     [ForeignKey("CategoryId")]
     public virtual Category Category { get; set; }
+    
+    // Relation 1:N Estate:EstateImage
+    public virtual ICollection<EstateImage> EstateImages { get; set; }
 }
 
 
