@@ -39,9 +39,10 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
 // AUTOMAPPER SERVICE
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-// ADD SERVICES (REPOSITORIES )
+// ADD SERVICES (REPOSITORIES)
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IEstateRepository, EstateRepository>();
 
 var app = builder.Build();
 
