@@ -110,6 +110,23 @@ public class CategoryRepository: ICategoryRepository
 
         return 0;
     }
+
+    public async Task<IEnumerable<DropDownCategoryDto>> GetDropDownCategories()
+    {
+        try
+        {
+            /*var categories = await _context.Categories.ToListAsync();
+            return _mapper.Map<IEnumerable<Category>, IEnumerable<DropDownCategoryDto>>(categories);*/
+            IEnumerable<DropDownCategoryDto> dropDownCategoriesDto = 
+                _mapper.Map<IEnumerable<Category>, IEnumerable<DropDownCategoryDto>>(_context.Categories);
+            return (dropDownCategoriesDto);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return null;
+        }
+    }
 }
 
 

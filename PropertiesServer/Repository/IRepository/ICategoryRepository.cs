@@ -10,5 +10,5 @@ public interface ICategoryRepository
     public Task<CategoryDto> UpdateCategory(int categoryId, CategoryDto categoryDto);
     public Task<CategoryDto> ExistsNameCategory(string nameCategory);
     public Task<int> DeleteCategory(int categoryId);
-    // public Task<IEnumerable<CategoryDTO>> GetDropDownCategories(int categoryId);
+    public Task<IEnumerable<DropDownCategoryDto>> GetDropDownCategories();
 }

@@ -2,6 +2,7 @@
 @using PropertiesServer.Models.DTO
 @using PropertiesServer.Repository.IRepository
 @inject IEstateRepository EstateRepository
+@inject ICategoryRepository CategoryRepository
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JsRuntime
 
@@ -23,7 +24,7 @@
                 <div class="form-group">
                     <div class="row">
                         <div class="col-2">
-                            <label for="">Name:</label>
+                            <label>Name:</label>
                         </div>
                         <div class="col-6">
                             <InputText @bind-Value="EstateDto.EstateName" class="form-control" placeholder="Enter estate name"/>
@@ -36,7 +37,7 @@
                 <div class="form-group">
                     <div class="row">
                         <div class="col-2">
-                            <label for="">Description:</label>
+                            <label>Description:</label>
                         </div>
                         <div class="col-6">
                             <InputText @bind-Value="EstateDto.EstateDescription" class="form-control" placeholder="Enter estate description"/>
@@ -49,7 +50,7 @@
                 <div class="form-group">
                     <div class="row">
                         <div class="col-2">
-                            <label for="">Area(m2):</label>
+                            <label>Area(m2):</label>
                         </div>
                         <div class="col-6">
                             <InputNumber @bind-Value="EstateDto.Area" class="form-control" placeholder="Enter estate area on square meters"/>
@@ -62,7 +63,7 @@
                 <div class="form-group">
                     <div class="row">
                         <div class="col-2">
-                            <label for="">Rooms:</label>
+                            <label>Rooms:</label>
                         </div>
                         <div class="col-6">
                             <InputNumber @bind-Value="EstateDto.Rooms" class="form-control" placeholder="Enter number of rooms"/>
@@ -75,7 +76,7 @@
                 <div class="form-group">
                     <div class="row">
                         <div class="col-2">
-                            <label for="">Bathrooms:</label>
+                            <label>Bathrooms:</label>
                         </div>
                         <div class="col-6">
                             <InputNumber @bind-Value="EstateDto.Bathrooms" class="form-control" placeholder="Enter number of bathrooms"/>
@@ -88,7 +89,7 @@
                 <div class="form-group">
                     <div class="row">
                         <div class="col-2">
-                            <label for="">Parking Lots:</label>
+                            <label>Parking Lots:</label>
                         </div>
                         <div class="col-6">
                             <InputNumber @bind-Value="EstateDto.ParkingLots" class="form-control" placeholder="Enter number of parkng lots"/>
@@ -101,7 +102,7 @@
                 <div class="form-group">
                     <div class="row">
                         <div class="col-2">
-                            <label for="">Price:</label>
+                            <label>Price:</label>
                         </div>
                         <div class="col-6">
                             <InputNumber @bind-Value="EstateDto.Price" class="form-control" placeholder="Enter the estate price"/>
@@ -111,19 +112,36 @@
                 </div>
                 <br />
 
-                @*<div class="form-group">
+                <div class="form-group">
                     <div class="row">
                         <div class="col-2">
-                            <label for="">Active:</label>
+                            <label>Active:</label>
                         </div>
                         <div class="col-6">
-                            <InputNumber @bind-Value="EstateDto.Active" class="form-control" placeholder="Enter estate status"/>
+                            <InputCheckbox @bind-Value="EstateDto.Active"/>
                             <ValidationMessage For="() => EstateDto.Active"></ValidationMessage>
                         </div>
                     </div>
                 </div>
-                <br />*@
+                <br />
 
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-2">
+                            <label>Category:</label>
+                        </div>
+                        <div class="col-6">
+                            <InputSelect @bind-Value="_selectedCategory.Id" class="form-control">
+                                @foreach (var category in DropDownCategoryDto)
+                                {
+                                    <option value="@category.Id">@category.NameCategory</option>
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                
                 <div class="form-group">
                     <div class="row">
                         <div class="col-2">
@@ -147,7 +165,16 @@
 
 @code {
     private EstateDto EstateDto { get; set; } = new();
+    private readonly DropDownCategoryDto _selectedCategory = new();
+    
+    // Obtain categories on dropdown selector (List<select>)
+    private IEnumerable<DropDownCategoryDto> DropDownCategoryDto { get; set; } = new List<DropDownCategoryDto>();
 
+    protected override async Task OnInitializedAsync()
+    {
+        DropDownCategoryDto = await CategoryRepository.GetDropDownCategories();
+    } 
+    
     private async Task OnCreateEstate()
     {
         var nameEstateExists = await EstateRepository.ExistsNameEstate(EstateDto.EstateName);

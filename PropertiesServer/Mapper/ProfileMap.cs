@@ -11,7 +11,8 @@ public class ProfileMap: Profile
         /* THE OTHER WAY
         CreateMap<CategoryDTO, Category>();
         CreateMap<Category, CategoryDTO>(); */
-        CreateMap<CategoryDto, Category>().ReverseMap();
+        CreateMap<Category, CategoryDto>().ReverseMap();
         CreateMap<Estate, EstateDto>().ReverseMap();
+        CreateMap<Category, DropDownCategoryDto>().ReverseMap();
     }
 }
