@@ -23,3 +23,23 @@ window.ShowSwal = (type, message) => {
         )
     }
 }
+
+function showModalOnConfirmDeleted() {
+    $('#modalOnConfirmDelete').modal('show');
+}
+
+function hideModalOnConfirmDeleted() {
+    $('#modalOnConfirmDelete').modal('hide');
+}
+
+
+
+
+
+
+
+
+
+
+
+

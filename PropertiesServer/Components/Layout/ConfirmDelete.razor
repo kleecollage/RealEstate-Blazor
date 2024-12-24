@@ -1,0 +1,58 @@
+<!-- Modal -->
+<div class="modal fade" id="modalOnConfirmDelete" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="modalLabel">Are you sure you want to delete?</h1>
+                <button 
+                    type="button" class="btn-close" 
+                    data-bs-dismiss="modal" 
+                    aria-label="Close"
+                    @onclick="() => OnConfirmChange(false)"></button>
+            </div>
+            <div class="modal-body">
+                Once the register is deleted it cannot be recovered.
+            </div>
+            <div class="modal-footer">
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    data-bs-dismiss="modal"
+                    @onclick="() => OnConfirmChange(false)"
+                >
+                    Cancel
+                </button>
+                @if (ProcessStarted)
+                {
+                    <button type="button" class="btn btn-secondary">
+                        <i class="bi bi-clock-history"></i>&nbsp;Loading ...
+                    </button>
+                }
+                else
+                {
+                    <button type="button" class="btn btn-danger" @onclick="() => OnConfirmChange(true)">
+                        <i class="bi bi-trash3-fill"></i>&nbsp;Delete
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code {
+    public bool ProcessStarted { get; set; } = false;
+    [Parameter] public EventCallback<bool> OnConfirmDelete { get; set; }
+    [Parameter] public bool ProcessParentComponent { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        ProcessStarted = ProcessParentComponent;
+    }
+
+    protected async Task OnConfirmChange(bool value)
+    {
+        if (value) ProcessStarted = true;
+        await OnConfirmDelete.InvokeAsync(value);
+    }
+}

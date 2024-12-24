@@ -7,17 +7,8 @@ using PropertiesServer.Repository.IRepository;
 
 namespace PropertiesServer.Repository;
 
-public class EstateRepository: IEstateRepository
+public class EstateRepository (ApplicationDbContext context, IMapper mapper): IEstateRepository
 {
-    private readonly ApplicationDbContext _context;
-    private readonly IMapper _mapper;
-
-    public EstateRepository(ApplicationDbContext context, IMapper mapper)
-    {
-        _context = context;
-        _mapper = mapper;
-    }
-    
     public async Task<IEnumerable<EstateDto>> GetAllEstates()
     {
         /* VERSION 1
@@ -35,8 +26,8 @@ public class EstateRepository: IEstateRepository
         try
         {
             IEnumerable<EstateDto> estatesDto = 
-                _mapper.Map<IEnumerable<Estate>, IEnumerable<EstateDto>>
-                    (_context.Estates.Include(e => e.EstateImages)
+                mapper.Map<IEnumerable<Estate>, IEnumerable<EstateDto>>
+                    (context.Estates.Include(e => e.EstateImages)
                         .Include(e => e.Category));
             return estatesDto;
         }
@@ -52,7 +43,7 @@ public class EstateRepository: IEstateRepository
         try
         {
             EstateDto estateDto = 
-                _mapper.Map<Estate, EstateDto>(await _context.Estates.FirstOrDefaultAsync(
+                mapper.Map<Estate, EstateDto>(await context.Estates.FirstOrDefaultAsync(
                     c => c.Id == estateId)
                 );
             return (estateDto);
@@ -66,11 +57,11 @@ public class EstateRepository: IEstateRepository
 
     public async Task<EstateDto> CreateEstate(EstateDto estateDto)
     {
-        Estate estate = _mapper.Map<EstateDto, Estate>(estateDto);
+        Estate estate = mapper.Map<EstateDto, Estate>(estateDto);
         estate.CreatedAt = DateTime.Now;
-        var addEstate = await _context.Estates.AddAsync(estate);
-        await _context.SaveChangesAsync();
-        return _mapper.Map<Estate, EstateDto>(addEstate.Entity);
+        var addEstate = await context.Estates.AddAsync(estate);
+        await context.SaveChangesAsync();
+        return mapper.Map<Estate, EstateDto>(addEstate.Entity);
     }
 
     public async Task<EstateDto> UpdateEstate(int estateId, EstateDto estateDto)
@@ -79,12 +70,12 @@ public class EstateRepository: IEstateRepository
         {
             if (estateId == estateDto.Id)
             {
-                Estate estate = await _context.Estates.FindAsync(estateId);
-                Estate estateToUpdate = _mapper.Map<EstateDto, Estate>(estateDto, estate);
+                Estate estate = await context.Estates.FindAsync(estateId);
+                Estate estateToUpdate = mapper.Map<EstateDto, Estate>(estateDto, estate);
                 estateToUpdate.UpdatedAt = DateTime.Now;
-                var updatedEstate = _context.Estates.Update(estateToUpdate);
-                await _context.SaveChangesAsync();
-                return _mapper.Map<Estate, EstateDto>(updatedEstate.Entity);
+                var updatedEstate = context.Estates.Update(estateToUpdate);
+                await context.SaveChangesAsync();
+                return mapper.Map<Estate, EstateDto>(updatedEstate.Entity);
             }
             else // Invalid
                 return null;
@@ -100,8 +91,8 @@ public class EstateRepository: IEstateRepository
     {
         try
         {
-            EstateDto estateDto = _mapper.Map<Estate, EstateDto>(
-                await _context.Estates.FirstOrDefaultAsync(
+            EstateDto estateDto = mapper.Map<Estate, EstateDto>(
+                await context.Estates.FirstOrDefaultAsync(
                     c => c.EstateName.ToLower().Trim() == nameEstate.ToLower().Trim())
             );
             return estateDto;
@@ -115,11 +106,13 @@ public class EstateRepository: IEstateRepository
 
     public async Task<int> DeleteEstate(int estateId)
     {
-        var estate = await _context.Estates.FindAsync(estateId);
+        var estate = await context.Estates.FindAsync(estateId);
         if (estate != null)
         {
-            _context.Estates.Remove(estate);
-            return await _context.SaveChangesAsync();
+            var images = await context.EstateImages.Where(e => e.Id == estateId).ToListAsync();
+            context.EstateImages.RemoveRange(images);
+            context.Estates.Remove(estate);
+            return await context.SaveChangesAsync();
         }
 
         return 0;

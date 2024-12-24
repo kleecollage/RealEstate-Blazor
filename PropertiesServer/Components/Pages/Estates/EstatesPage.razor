@@ -1,7 +1,13 @@
 @page "/estates"
+
 @using PropertiesServer.Models.DTO
 @using PropertiesServer.Repository.IRepository
+@using PropertiesServer.Components.Layout
+@using PropertiesServer.Services
 @inject IEstateRepository EstateRepository
+@inject IUploadFile UploadFile
+@inject IJSRuntime JsRuntime
+@inject NavigationManager NavigationManager
 
 <h3 class="text-center">Estates</h3>
 <div class="card">
@@ -72,17 +78,44 @@
     </div>
 </div>
 
-
+<ConfirmDelete OnConfirmDelete="ConfirmDeleted" ProcessParentComponent="OnProcess" />
 
 @code {
     private IEnumerable<EstateDto> EstateDto { get; set; } = new List<EstateDto>();
+    public bool OnProcess { get; set; } = false;
+    public int? DeleteEstateId { get; set; } = null;
 
     protected override async Task OnInitializedAsync()
     {
         EstateDto = await EstateRepository.GetAllEstates();
     }
+    
+    private async Task OnDeleteEstate(int estateId)
+    {
+        DeleteEstateId = estateId;
+        await JsRuntime.InvokeVoidAsync("showModalOnConfirmDeleted");
+    }
 
-    private async Task OnDeleteEstate(int estateId) {}
+    public async Task ConfirmDeleted(bool confirm)
+    {
+        OnProcess = true;
+        if (confirm && DeleteEstateId != null)
+        {
+            EstateDto estate = await EstateRepository.GetEstate(DeleteEstateId.Value);
+
+            foreach (var image in estate.EstateImages)
+            {
+                var nameImage = image.ImageUrl.Replace($"{NavigationManager.BaseUri}EstateImages/", "");
+                UploadFile.DeleteFile(nameImage);
+            }
+            
+            await EstateRepository.DeleteEstate(DeleteEstateId.Value);
+            await JsRuntime.ToastrSuccess("Estate Deleted Successfully!");
+            EstateDto = await EstateRepository.GetAllEstates();
+        }
+        await JsRuntime.InvokeVoidAsync("hideModalOnConfirmDeleted");
+        OnProcess = false;
+    }
 }
 
 
