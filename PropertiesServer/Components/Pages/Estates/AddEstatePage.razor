@@ -1,0 +1,183 @@
+@page "/add-estate"
+@using PropertiesServer.Models.DTO
+@using PropertiesServer.Repository.IRepository
+@inject IEstateRepository EstateRepository
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JsRuntime
+
+<h2 class="text-center">Add New Estate</h2>
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-7">
+                <h2 class="text-dark">New Estate</h2>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <EditForm Model="EstateDto" OnValidSubmit="@(() => OnCreateEstate())">
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+            <ValidationSummary></ValidationSummary>
+            <div class="container">
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-2">
+                            <label for="">Name:</label>
+                        </div>
+                        <div class="col-6">
+                            <InputText @bind-Value="EstateDto.EstateName" class="form-control" placeholder="Enter estate name"/>
+                            <ValidationMessage For="() => EstateDto.EstateName"></ValidationMessage>
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-2">
+                            <label for="">Description:</label>
+                        </div>
+                        <div class="col-6">
+                            <InputText @bind-Value="EstateDto.EstateDescription" class="form-control" placeholder="Enter estate description"/>
+                            <ValidationMessage For="() => EstateDto.EstateDescription"></ValidationMessage>
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-2">
+                            <label for="">Area(m2):</label>
+                        </div>
+                        <div class="col-6">
+                            <InputNumber @bind-Value="EstateDto.Area" class="form-control" placeholder="Enter estate area on square meters"/>
+                            <ValidationMessage For="() => EstateDto.Area"></ValidationMessage>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-2">
+                            <label for="">Rooms:</label>
+                        </div>
+                        <div class="col-6">
+                            <InputNumber @bind-Value="EstateDto.Rooms" class="form-control" placeholder="Enter number of rooms"/>
+                            <ValidationMessage For="() => EstateDto.Rooms"></ValidationMessage>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-2">
+                            <label for="">Bathrooms:</label>
+                        </div>
+                        <div class="col-6">
+                            <InputNumber @bind-Value="EstateDto.Bathrooms" class="form-control" placeholder="Enter number of bathrooms"/>
+                            <ValidationMessage For="() => EstateDto.Bathrooms"></ValidationMessage>
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-2">
+                            <label for="">Parking Lots:</label>
+                        </div>
+                        <div class="col-6">
+                            <InputNumber @bind-Value="EstateDto.ParkingLots" class="form-control" placeholder="Enter number of parkng lots"/>
+                            <ValidationMessage For="() => EstateDto.ParkingLots"></ValidationMessage>
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-2">
+                            <label for="">Price:</label>
+                        </div>
+                        <div class="col-6">
+                            <InputNumber @bind-Value="EstateDto.Price" class="form-control" placeholder="Enter the estate price"/>
+                            <ValidationMessage For="() => EstateDto.Price"></ValidationMessage>
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+                @*<div class="form-group">
+                    <div class="row">
+                        <div class="col-2">
+                            <label for="">Active:</label>
+                        </div>
+                        <div class="col-6">
+                            <InputNumber @bind-Value="EstateDto.Active" class="form-control" placeholder="Enter estate status"/>
+                            <ValidationMessage For="() => EstateDto.Active"></ValidationMessage>
+                        </div>
+                    </div>
+                </div>
+                <br />*@
+
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-send-check-fill"></i>&nbsp;Submit Estate
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <NavLink href="estates" class="btn btn-secondary">
+                                <i class="bi bi-arrow-90deg-left"></i>&nbsp;Go Back
+                            </NavLink>
+                        </div>
+                    </div>
+                </div>
+                <br />
+
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private EstateDto EstateDto { get; set; } = new();
+
+    private async Task OnCreateEstate()
+    {
+        var nameEstateExists = await EstateRepository.ExistsNameEstate(EstateDto.EstateName);
+        if (nameEstateExists != null)
+        {
+            // Duplicated estate error
+            await JsRuntime.ToastrError("Estate name already exists!");
+            return;
+        }
+        // OK :)
+        await EstateRepository.CreateEstate(EstateDto);
+        await JsRuntime.ToastrSuccess("Estate Created Successfully!");
+        NavigationManager.NavigateTo("estates");
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

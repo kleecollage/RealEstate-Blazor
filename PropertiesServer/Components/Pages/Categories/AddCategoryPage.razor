@@ -15,7 +15,7 @@
         </div>
     </div>
     <div class="card-body">
-        <EditForm Model="CategoryDto" OnValidSubmit="@(() => OnHandleCreateCategory())">
+        <EditForm Model="CategoryDto" OnValidSubmit="@(() => OnCreateCategory())">
             <DataAnnotationsValidator></DataAnnotationsValidator>
             <ValidationSummary></ValidationSummary>
             <div class="container">
@@ -70,7 +70,7 @@
 @code {
     private CategoryDto CategoryDto { get; set; } = new();
 
-    private async Task OnHandleCreateCategory()
+    private async Task OnCreateCategory()
     {
         var nameCategoryExists = await CategoryRepository.ExistsNameCategory(CategoryDto.NameCategory);
         if (nameCategoryExists != null)

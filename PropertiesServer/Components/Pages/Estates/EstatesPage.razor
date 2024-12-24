@@ -1,0 +1,97 @@
+@page "/estates"
+@using PropertiesServer.Models.DTO
+@using PropertiesServer.Repository.IRepository
+@inject IEstateRepository EstateRepository
+
+<h3 class="text-center">Estates</h3>
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <div class="col-7">
+                <h4 class="card-title text-dark">List Estates</h4>
+            </div>
+            <div class="col-3 offset-2">
+                <NavLink href="add-estate" class="btn btn-primary">
+                    <i class="bi bi-plus-circle-fill fs-4"></i>&nbsp;New Estate
+                </NavLink>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <table class="table table-bordered table-hover">
+            <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Area(m2)</th>
+                <th>Rooms</th>
+                <th>Bathrooms</th>
+                <th>Parking Lots</th>
+                <th>Price</th>
+                <th>Is Active</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            @if (EstateDto.Count() > 0)
+            {
+                foreach (var estate in EstateDto)
+                {
+                    <tr>
+                        <td>@estate.Id</td>
+                        <td>@estate.EstateName</td>
+                        <td>@estate.EstateDescription</td>
+                        <td>@estate.Area</td>
+                        <td>@estate.Rooms</td>
+                        <td>@estate.Bathrooms</td>
+                        <td>@estate.ParkingLots</td>
+                        <td>@estate.Price</td>
+                        <td>@estate.Active</td>
+                        <td>
+                            <NavLink href="@($"edit-estate/{estate.Id}")" class="btn btn-secondary">
+                                <i class="bi bi-pencil-square"></i>&nbsp;Edit
+                            </NavLink>
+                            <button class="btn btn-danger" @onclick="() => OnDeleteEstate(estate.Id)">
+                                <i class="bi bi-trash3-fill"></i>&nbsp;Delete
+                            </button>
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="10" class="text-center">No registers </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+@code {
+    private IEnumerable<EstateDto> EstateDto { get; set; } = new List<EstateDto>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        EstateDto = await EstateRepository.GetAllEstates();
+    }
+
+    private async Task OnDeleteEstate(int estateId) {}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
