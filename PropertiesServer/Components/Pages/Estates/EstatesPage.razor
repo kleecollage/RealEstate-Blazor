@@ -11,7 +11,7 @@
                 <h4 class="card-title text-dark">List Estates</h4>
             </div>
             <div class="col-3 offset-2">
-                <NavLink href="add-estate" class="btn btn-primary">
+                <NavLink href="add-estate" class="btn btn-success">
                     <i class="bi bi-plus-circle-fill fs-4"></i>&nbsp;New Estate
                 </NavLink>
             </div>
@@ -30,6 +30,7 @@
                 <th>Parking Lots</th>
                 <th>Price</th>
                 <th>Is Active</th>
+                <th>Category</th>
                 <th>Actions</th>
             </tr>
             </thead>
@@ -47,9 +48,10 @@
                         <td>@estate.Bathrooms</td>
                         <td>@estate.ParkingLots</td>
                         <td>@estate.Price</td>
+                        <td>@estate.Category.NameCategory</td>
                         <td>@estate.Active</td>
                         <td>
-                            <NavLink href="@($"edit-estate/{estate.Id}")" class="btn btn-secondary">
+                            <NavLink href="@($"edit-estate/{estate.Id}")" class="btn btn-primary">
                                 <i class="bi bi-pencil-square"></i>&nbsp;Edit
                             </NavLink>
                             <button class="btn btn-danger" @onclick="() => OnDeleteEstate(estate.Id)">

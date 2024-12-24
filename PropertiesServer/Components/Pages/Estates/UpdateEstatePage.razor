@@ -1,5 +1,5 @@
-@page "/add-estate"
-@using PropertiesServer.Models
+@page "/edit-estate/{Id:int}"
+
 @using PropertiesServer.Models.DTO
 @using PropertiesServer.Repository.IRepository
 @using PropertiesServer.Services
@@ -10,17 +10,17 @@
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JsRuntime
 
-<h2 class="text-center">Add New Estate</h2>
+<h2 class="text-center">Update Estate</h2>
 <div class="card">
     <div class="card-header">
         <div class="row">
             <div class="col-7">
-                <h2 class="text-dark">New Estate</h2>
+                <h2 class="text-dark">Estate Information</h2>
             </div>
         </div>
     </div>
     <div class="card-body">
-        <EditForm Model="EstateDto" OnValidSubmit="@(() => OnCreateEstate())">
+        <EditForm Model="EstateDto" OnValidSubmit="@(() => OnUpdateEstate())">
             <DataAnnotationsValidator></DataAnnotationsValidator>
             <ValidationSummary></ValidationSummary>
             <div class="container">
@@ -198,9 +198,11 @@
 </div>
 
 @code {
+    [Parameter] public int? Id { get; set; }
     private EstateDto EstateDto { get; set; } = new();
     private readonly DropDownCategoryDto _selectedCategory = new();
     private EstateImageDto EstateImageDto { get; set; } = new();
+    private List<string> ImagesDeleted { get; set; } = new();
     private bool UploadFileProcessStarted { get; set; } = false;
     
     // Obtain categories to dropdown selector (List<select>)
@@ -209,22 +211,36 @@
     protected override async Task OnInitializedAsync()
     {
         DropDownCategoryDto = await CategoryRepository.GetDropDownCategories();
+        if (Id != null)
+        {
+            EstateDto = await EstateRepository.GetEstate(Id.Value);
+            if (EstateDto?.EstateImages != null)
+            {
+                EstateDto.UrlImages = EstateDto.EstateImages.Select(i => i.ImageUrl).ToList();
+            }
+        }
     } 
     
-    private async Task OnCreateEstate()
+    private async Task OnUpdateEstate()
     {
-        var nameEstateExists = await EstateRepository.ExistsNameEstate(EstateDto.EstateName);
-        if (nameEstateExists != null)
-        {
-            // Duplicated estate error
-            await JsRuntime.ToastrError("Estate name already exists!");
-            return;
-        }
-        // OK :)
         EstateDto.CategoryId = _selectedCategory.Id;
-        var createEstate = await EstateRepository.CreateEstate(EstateDto);
-        await AddEstateImages(createEstate);
-        await JsRuntime.ToastrSuccess("Estate Created Successfully!");
+        var updateEstateResult = await EstateRepository.UpdateEstate(EstateDto.Id, EstateDto);
+        
+        if (EstateDto.UrlImages != null && EstateDto.UrlImages.Any() 
+            || ImagesDeleted != null && ImagesDeleted.Any())
+        {
+            if (ImagesDeleted != null && ImagesDeleted.Any())
+            {
+                foreach (var imageDeleted in ImagesDeleted)
+                {
+                    var imageName = imageDeleted.Replace($"{NavigationManager.BaseUri}EstateImages/", "");
+                    var result = UploadFile.DeleteFile(imageName);
+                    await EstateImageRepository.DeleteEstateImageByUrl(imageDeleted);
+                }
+            }
+            await AddEstateImages(updateEstateResult);
+        }
+        await JsRuntime.ToastrSuccess("Estate Updated Successfully!");
         NavigationManager.NavigateTo("estates");
     }
 
@@ -292,14 +308,14 @@
         {
             var imageIdx = EstateDto.UrlImages.FindIndex(i => i == imageUrl);
             var imageName = imageUrl.Replace($"{NavigationManager.BaseUri}EstateImages/", "");
-            
-            if (EstateDto.Id == 0) UploadFile.DeleteFile(imageName);
-            
+            ImagesDeleted ??= new List<string>();
+            ImagesDeleted.Add(imageUrl);
             EstateDto.UrlImages.RemoveAt(imageIdx);
         }
         catch (Exception e)
         {
             await JsRuntime.ToastrError(e.Message);
+            return;
         }
     }
 

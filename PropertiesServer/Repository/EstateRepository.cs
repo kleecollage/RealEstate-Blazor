@@ -20,11 +20,25 @@ public class EstateRepository: IEstateRepository
     
     public async Task<IEnumerable<EstateDto>> GetAllEstates()
     {
+        /* VERSION 1
         try
         {
             IEnumerable<EstateDto> estatesDto = 
                 _mapper.Map<IEnumerable<Estate>, IEnumerable<EstateDto>>(_context.Estates);
             return (estatesDto);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return null;
+        }*/
+        try
+        {
+            IEnumerable<EstateDto> estatesDto = 
+                _mapper.Map<IEnumerable<Estate>, IEnumerable<EstateDto>>
+                    (_context.Estates.Include(e => e.EstateImages)
+                        .Include(e => e.Category));
+            return estatesDto;
         }
         catch (Exception e)
         {

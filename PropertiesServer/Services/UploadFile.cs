@@ -36,7 +36,7 @@ public class UploadFile(IWebHostEnvironment webHostEnvironment, IConfiguration c
     {
         try
         {
-            var path = $"{webHostEnvironment.WebRootPath}\\EstateImages\\{fileName}";
+            var path = Path.Combine(webHostEnvironment.WebRootPath, fileName);
             if (File.Exists(path))
             {
                 File.Delete(path);
