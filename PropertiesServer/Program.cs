@@ -14,6 +14,22 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+// AUTOMAPPER SERVICE
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+//  LIMIT FILES SIZE ON KESTREL
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.Limits.MaxRequestBodySize = 10485760; // 10 MB
+});
+
+// ADD SERVICES (REPOSITORIES)
+builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IEstateRepository, EstateRepository>();
+builder.Services.AddScoped<IEstateImageRepository, EstateImageRepository>();
+builder.Services.AddScoped<IUploadFile, UploadFile>();
+
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
@@ -25,7 +41,7 @@ builder.Services.AddAuthentication(options =>
         options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
     })
     .AddIdentityCookies();
-
+// DATABASE CONNECTION
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
                        throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -36,16 +52,6 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddSignInManager()
     .AddDefaultTokenProviders();
-
-// AUTOMAPPER SERVICE
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
-// ADD SERVICES (REPOSITORIES)
-builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
-builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-builder.Services.AddScoped<IEstateRepository, EstateRepository>();
-builder.Services.AddScoped<IEstateImageRepository, EstateImageRepository>();
-builder.Services.AddScoped<IUploadFile, UploadFile>();
 
 var app = builder.Build();
 

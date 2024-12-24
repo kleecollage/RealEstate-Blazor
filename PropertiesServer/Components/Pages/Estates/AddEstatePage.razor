@@ -1,8 +1,12 @@
 @page "/add-estate"
+@using PropertiesServer.Models
 @using PropertiesServer.Models.DTO
 @using PropertiesServer.Repository.IRepository
+@using PropertiesServer.Services
 @inject IEstateRepository EstateRepository
 @inject ICategoryRepository CategoryRepository
+@inject IEstateImageRepository EstateImageRepository
+@inject IUploadFile UploadFile
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JsRuntime
 
@@ -142,6 +146,36 @@
                 </div>
                 <br />
                 
+                <div class="form-group" style="padding-top: 30px; padding-bottom: 30px">
+                    <hr />
+                    <h4>Estate Images</h4>
+                    <InputFile OnChange="OnUploadFiles" multiple></InputFile>
+                    <div class="row">
+                        @if (UploadFileProcessStarted)
+                        {
+                            <div class="col-md-12">
+                                <span><i class="bi bi-hourglass-split"></i>Upload Files ...</span>
+                            </div>
+                        }
+                        @if (EstateDto.UrlImages != null && EstateDto.UrlImages.Count > 0)
+                        {
+                            int serial = 1;
+                            foreach (var estateImage in EstateDto.UrlImages)
+                            {
+                                <div class="col-md-2 mt-3">
+                                    <div class="estate-image" style="background: url('@estateImage') 50% 50%">
+                                        <span class="title-estate-image">@serial</span>
+                                    </div>
+                                    <button type="button" @onclick="() => RemoveImage(estateImage)" class="btn btn-outline-danger mt-4">
+                                        Remove
+                                    </button>
+                                </div>
+                                serial++;
+                            }
+                        }
+                    </div>
+                </div>
+                
                 <div class="form-group">
                     <div class="row">
                         <div class="col-2">
@@ -166,8 +200,10 @@
 @code {
     private EstateDto EstateDto { get; set; } = new();
     private readonly DropDownCategoryDto _selectedCategory = new();
+    private EstateImageDto EstateImageDto { get; set; } = new();
+    private bool UploadFileProcessStarted { get; set; } = false;
     
-    // Obtain categories on dropdown selector (List<select>)
+    // Obtain categories to dropdown selector (List<select>)
     private IEnumerable<DropDownCategoryDto> DropDownCategoryDto { get; set; } = new List<DropDownCategoryDto>();
 
     protected override async Task OnInitializedAsync()
@@ -185,9 +221,108 @@
             return;
         }
         // OK :)
-        await EstateRepository.CreateEstate(EstateDto);
+        EstateDto.CategoryId = _selectedCategory.Id;
+        var createEstate = await EstateRepository.CreateEstate(EstateDto);
+        await AddEstateImages(createEstate);
         await JsRuntime.ToastrSuccess("Estate Created Successfully!");
         NavigationManager.NavigateTo("estates");
+    }
+
+    private async Task OnUploadFiles(InputFileChangeEventArgs e)
+    {
+        UploadFileProcessStarted = true;
+        try
+        {
+            var images = new List<string>();
+            if (e.GetMultipleFiles().Count() > 0)
+            {
+                foreach (var file in e.GetMultipleFiles())
+                {
+                    if (file.Size > 10 * 1024 * 1024) // 10 MB
+                    {
+                        await JsRuntime.ToastrError("Max File Size 10MB");
+                        return;
+                    }
+
+                    FileInfo fileInfo = new FileInfo(file.Name);
+                    if (fileInfo.Extension.ToLower() == ".jpg" 
+                        || fileInfo.Extension.ToLower() == ".png"
+                        || fileInfo.Extension.ToLower() == ".jpeg" )
+                    {
+                        var uploadedImagePath = await UploadFile.UploadFiles(file);
+                        images.Add(uploadedImagePath);
+                    }
+                    else
+                    {
+                        await JsRuntime.ToastrError("Supported formats only: .jgp/.jpeg/.png");
+                        return;
+                    }
+                }
+
+                if (images.Any())
+                {
+                    if (EstateDto.UrlImages != null && EstateDto.UrlImages.Any())
+                    {
+                        EstateDto.UrlImages.AddRange(images);
+                    }
+                    else
+                    {
+                        EstateDto.UrlImages = new List<string>();
+                        EstateDto.UrlImages.AddRange(images);
+                    }
+                }
+                else
+                {
+                    await JsRuntime.ToastrError("Ooops, Something went wrong. Try again leater");
+                    return;
+                }
+            }
+            UploadFileProcessStarted = false;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            throw;
+        }
+    }
+
+    internal async Task RemoveImage(string imageUrl)
+    {
+        try
+        {
+            var imageIdx = EstateDto.UrlImages.FindIndex(i => i == imageUrl);
+            var imageName = imageUrl.Replace($"{NavigationManager.BaseUri}EstateImages/", "");
+            
+            if (EstateDto.Id == 0)
+            {
+                var result = UploadFile.DeleteFile(imageName);
+            }
+            
+            EstateDto.UrlImages.RemoveAt(imageIdx);
+            
+        }
+        catch (Exception e)
+        {
+            await JsRuntime.ToastrError(e.Message);
+            return;
+        }
+    }
+
+    private async Task AddEstateImages(EstateDto estateDto)
+    {
+        foreach (var urlImage in EstateDto.UrlImages)
+        {
+            if (EstateDto.EstateImages == null
+                || EstateDto.EstateImages.All(i => i.ImageUrl != urlImage))
+            {
+                EstateImageDto = new EstateImageDto
+                {
+                    EstateId = estateDto.Id,
+                    ImageUrl = urlImage
+                };
+                await EstateImageRepository.CreateEstateImage(EstateImageDto);
+            }
+        }
     }
 }
 

@@ -44,4 +44,7 @@ public class EstateDto
     
     // Relation 1:N Estate:Category
     public int CategoryId { get; set; }
+    
+    public virtual ICollection<EstateImage> EstateImages { get; set; }
+    public List<string> UrlImages { get; set; }
 }
