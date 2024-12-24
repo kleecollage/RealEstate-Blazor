@@ -14,5 +14,6 @@ public class ProfileMap: Profile
         CreateMap<Category, CategoryDto>().ReverseMap();
         CreateMap<Estate, EstateDto>().ReverseMap();
         CreateMap<Category, DropDownCategoryDto>().ReverseMap();
+        CreateMap<EstateImage, EstateImageDto>().ReverseMap();
     }
 }
