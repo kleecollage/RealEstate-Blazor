@@ -115,8 +115,6 @@ public class CategoryRepository: ICategoryRepository
     {
         try
         {
-            /*var categories = await _context.Categories.ToListAsync();
-            return _mapper.Map<IEnumerable<Category>, IEnumerable<DropDownCategoryDto>>(categories);*/
             IEnumerable<DropDownCategoryDto> dropDownCategoriesDto = 
                 _mapper.Map<IEnumerable<Category>, IEnumerable<DropDownCategoryDto>>(_context.Categories);
             return (dropDownCategoriesDto);
