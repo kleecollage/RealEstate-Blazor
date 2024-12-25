@@ -1,5 +1,6 @@
 @page "/categories"
 
+@inject IJSRuntime JsRuntime
 @inject ICategoryRepository CategoryRepository
 
 <h3 class="text-center">Categories</h3>
@@ -27,9 +28,9 @@
             </tr>
             </thead>
             <tbody>
-                @if (categoryDto.Count() > 0)
+                @if (CategoryDto.Count() > 0)
                 {
-                    foreach (var category in categoryDto)
+                    foreach (var category in CategoryDto)
                     {
                         <tr>
                             <td>@category.Id</td>
@@ -56,18 +57,37 @@
         </table>
     </div>
 </div>
-
+<ConfirmDelete  OnConfirmDelete="ConfirmDeleted" ProcessParentComponent="OnProcess" />
 
 
 @code {
-    private IEnumerable<CategoryDto> categoryDto { get; set; } = new List<CategoryDto>();
-
+    private IEnumerable<CategoryDto> CategoryDto { get; set; } = new List<CategoryDto>();
+    public bool OnProcess { get; set; } = false;
+    public int? DeleteCategoryId { get; set; } = null;
+    
     protected override async Task OnInitializedAsync()
     {
-        categoryDto = await CategoryRepository.GetAllCategories();
+        CategoryDto = await CategoryRepository.GetAllCategories();
+    }
+
+    private async Task OnDeleteCategory(int categoryId)
+    {
+        DeleteCategoryId = categoryId;
+        await JsRuntime.InvokeVoidAsync("showModalOnConfirmDeleted");
     }
     
-    private async Task OnDeleteCategory(int categoryId) {}
+    public async Task ConfirmDeleted(bool confirm)
+    {
+        OnProcess = true;
+        if (confirm && DeleteCategoryId != null)
+        {
+            await CategoryRepository.DeleteCategory(DeleteCategoryId.Value);
+            await JsRuntime.ToastrSuccess("Category Deleted Successfully!");
+            CategoryDto = await CategoryRepository.GetAllCategories();
+        }
+        await JsRuntime.InvokeVoidAsync("hideModalOnConfirmDeleted");
+        OnProcess = false;
+    }
 }
 
 
