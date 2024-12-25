@@ -133,6 +133,7 @@
                         </div>
                         <div class="col-6">
                             <InputSelect @bind-Value="_selectedCategory.Id" class="form-control">
+                                <option disabled selected value="">-- Select a Category --</option>
                                 @foreach (var category in DropDownCategoryDto)
                                 {
                                     <option value="@category.Id">@category.NameCategory</option>

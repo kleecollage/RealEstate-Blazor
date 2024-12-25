@@ -1,0 +1,69 @@
+@page "/detail-estate/{Id:int}"
+@inject IEstateRepository EstateRepository
+
+<PageTitle>Detail</PageTitle>
+
+<h1 class="text-center">Estate Detail</h1>
+<div class="card">
+    <div class="card-header">
+        <div class="row">
+            <h2>@EstateDto.EstateName</h2>
+        </div>
+    </div>
+    <div class="card-body">
+        @if (EstateDto.UrlImages != null)
+        {
+            <div class="row mb-3">
+                @foreach (var image in EstateDto.UrlImages)
+                {
+                    <div class="col-4">
+                        <img src="@image" class="img-fluid" alt="estate image"/>
+                    </div>    
+                }
+            </div>
+        }
+        <ul class="list-group">
+            <li class="list-group-item"><strong>Description: </strong> @EstateDto.EstateDescription</li>
+            <li class="list-group-item"><strong>Area(m2): </strong> @EstateDto.Area</li>
+            <li class="list-group-item"><strong>Bathrooms: </strong>@EstateDto.Bathrooms</li>
+            <li class="list-group-item"><strong>Rooms: </strong>@EstateDto.Rooms</li>
+            <li class="list-group-item"><strong>ParkingLots: </strong>@EstateDto.ParkingLots</li>
+            <li class="list-group-item"><strong>Price: </strong>@EstateDto.Price</li>
+            <li class="list-group-item"><strong>Active: </strong>@EstateDto.Active</li>
+            <li class="list-group-item"><strong>Update Date: </strong>@EstateDto.UpdatedAt</li>
+        </ul>
+    </div>
+    <div class="card-footer">
+        <NavLink href="/" class="btn btn-primary">
+            <i class="bi bi-arrow-90deg-left"></i>&nbsp;Return
+        </NavLink>
+    </div>
+</div>
+@code {
+    private EstateDto EstateDto { get; set; } = new();
+    [Parameter] public int? Id {get; set; }
+    
+    protected override async Task OnInitializedAsync()
+    {
+        EstateDto = await EstateRepository.GetEstate(Id.Value);
+        EstateDto.UrlImages = EstateDto.EstateImages.Select(i => i.ImageUrl).ToList();
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

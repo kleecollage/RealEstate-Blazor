@@ -4,7 +4,7 @@
 <PageTitle>Home</PageTitle>
 
 <h1 class="text-center">LAST ESTATES</h1>
-<div class="row">
+<div class="row mt-3">
     @foreach (var estate in EstatesDto)
     {
         @if (estate.Active)
@@ -21,7 +21,7 @@
                             {
                                 <img src="@image.ImageUrl" class="img-fluid" alt="estate image"/>
                             }
-                        }
+                        }Bertha Elisa Noeggerath Cárdenas
                         else
                         {
                             <img src="img/NoneImage.png" alt="image null" class="img-fluid" />
@@ -29,7 +29,7 @@
                     </div>
                     <div class="card-footer">
                         <NavLink href="@($"detail-estate/{estate.Id}")" class="btn btn-primary">
-                            <i class="bi bi-pencil-square"></i>&nbsp;More ...
+                            <i class="bi bi-info-circle-fill"></i>&nbsp;More Info...
                         </NavLink>
                     </div>
                 </div>

@@ -133,6 +133,7 @@
                         </div>
                         <div class="col-6">
                             <InputSelect @bind-Value="_selectedCategory.Id" class="form-control">
+                                <option disabled selected value="">-- Select a Category --</option>
                                 @foreach (var category in DropDownCategoryDto)
                                 {
                                     <option value="@category.Id">@category.NameCategory</option>
@@ -197,7 +198,7 @@
 @code {
     [Parameter] public int? Id { get; set; }
     private EstateDto EstateDto { get; set; } = new();
-    private readonly DropDownCategoryDto _selectedCategory = new();
+    private DropDownCategoryDto _selectedCategory = new();
     private EstateImageDto EstateImageDto { get; set; } = new();
     private List<string> ImagesDeleted { get; set; } = new();
     private bool UploadFileProcessStarted { get; set; } = false;
@@ -215,6 +216,7 @@
             {
                 EstateDto.UrlImages = EstateDto.EstateImages.Select(i => i.ImageUrl).ToList();
             }
+            _selectedCategory = DropDownCategoryDto.FirstOrDefault(c => c.Id == EstateDto.CategoryId) ?? new DropDownCategoryDto();
         }
     } 
     
