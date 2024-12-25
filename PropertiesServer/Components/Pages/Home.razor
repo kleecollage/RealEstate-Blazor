@@ -1,7 +1,48 @@
 ﻿@page "/"
+@inject IEstateRepository EstateRepository
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<h1 class="text-center">LAST ESTATES</h1>
+<div class="row">
+    @foreach (var estate in EstatesDto)
+    {
+        @if (estate.Active)
+        {
+            <div class="col-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>@estate.EstateName</h3>
+                    </div>
+                    <div class="card-body">
+                        @if (estate.EstateImages.Count > 0)
+                        {
+                            @foreach (var image in estate.EstateImages.Take(1))
+                            {
+                                <img src="@image.ImageUrl" class="img-fluid" alt="estate image"/>
+                            }
+                        }
+                        else
+                        {
+                            <img src="img/NoneImage.png" alt="image null" class="img-fluid" />
+                        }
+                    </div>
+                    <div class="card-footer">
+                        <NavLink href="@($"detail-estate/{estate.Id}")" class="btn btn-primary">
+                            <i class="bi bi-pencil-square"></i>&nbsp;More ...
+                        </NavLink>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
 
-Welcome to your new app.
+@code {
+    private IEnumerable<EstateDto> EstatesDto { get; set; } = new List<EstateDto>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        EstatesDto = await EstateRepository.GetAllEstates();
+    }
+}
