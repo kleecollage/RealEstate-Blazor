@@ -17,23 +17,16 @@ builder.Services.AddRazorComponents()
 // AUTOMAPPER SERVICE
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-//  LIMIT FILES SIZE ON KESTREL
-builder.WebHost.ConfigureKestrel(serverOptions =>
-{
-    serverOptions.Limits.MaxRequestBodySize = 10485760; // 10 MB
-});
-
-// ADD SERVICES (REPOSITORIES)
+// SERVICES (REPOSITORIES)
+builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
+builder.Services.AddCascadingAuthenticationState();
+builder.Services.AddScoped<IdentityUserAccessor>();
+builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IEstateRepository, EstateRepository>();
 builder.Services.AddScoped<IEstateImageRepository, EstateImageRepository>();
 builder.Services.AddScoped<IUploadFile, UploadFile>();
-
-builder.Services.AddCascadingAuthenticationState();
-builder.Services.AddScoped<IdentityUserAccessor>();
-builder.Services.AddScoped<IdentityRedirectManager>();
-builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
 
 builder.Services.AddAuthentication(options =>
     {
@@ -41,6 +34,7 @@ builder.Services.AddAuthentication(options =>
         options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
     })
     .AddIdentityCookies();
+
 // DATABASE CONNECTION
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
                        throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
@@ -48,12 +42,23 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-// AddIdentityCore<ApplicationUser> removed
+/*
+//  LIMIT FILES SIZE ON KESTREL
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.Limits.MaxRequestBodySize = 10485760; // 10 MB
+});
+*/
+
+// IDENTITY
 builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>() // ROLE SUPPORT
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddSignInManager()
     .AddDefaultTokenProviders();
+
+// DATA SEEDING
+builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 
 var app = builder.Build();
 
@@ -74,6 +79,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAntiforgery();
 
+DataSeeding(); // DATA SEEDING METHOD
+
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
@@ -81,3 +88,19 @@ app.MapRazorComponents<App>()
 app.MapAdditionalIdentityEndpoints();
 
 app.Run();
+
+// DATA SEEDING METHOD
+void DataSeeding() {
+    using (var scope = app.Services.CreateScope())
+    {
+        var initializeDb = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+        initializeDb.Initialize();
+    }
+}
+
+
+
+
+
+
+
