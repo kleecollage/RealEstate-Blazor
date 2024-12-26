@@ -1,5 +1,8 @@
 @page "/detail-estate/{Id:int}"
+
 @inject IEstateRepository EstateRepository
+
+@attribute [Authorize]
 
 <PageTitle>Detail</PageTitle>
 
