@@ -1,0 +1,60 @@
+@page "/roles-config"
+
+@using Microsoft.AspNetCore.Identity
+@using PropertiesServer.Data
+@inject RoleManager<IdentityRole> RoleManager
+@inject UserManager<ApplicationUser> UserManager
+@inject IConfiguration Config
+
+@attribute [Authorize(Roles = "Admin")]
+
+<h3>Role Configuration Succeed</h3>
+
+@code {
+    protected override async Task OnParametersSetAsync()
+    {
+        await AuthConfig();
+    }
+
+    private async Task AuthConfig()
+    {
+        const string publisher = "Publisher";
+        string[] roles = [publisher];
+
+        foreach (var role in roles)
+        {
+            var roleExists = await RoleManager.RoleExistsAsync(role);
+            if (!roleExists)
+            {
+                await RoleManager.CreateAsync(new IdentityRole(role));
+            }
+        }
+
+        var user = await UserManager.FindByEmailAsync(
+            Config.GetValue<string>("PublisherUser"));
+
+        if (user != null)
+        {
+            await UserManager.AddToRoleAsync(user, publisher);
+        }
+
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

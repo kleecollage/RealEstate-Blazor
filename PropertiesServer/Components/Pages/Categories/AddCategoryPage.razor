@@ -4,7 +4,7 @@
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JsRuntime
 
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin, Publisher")]
 
 <h2 class="text-center">Add New Category</h2>
 <div class="card">
